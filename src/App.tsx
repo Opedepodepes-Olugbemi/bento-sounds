@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { PlusCircle, Play, Pause, Music, Upload } from "lucide-react"
+import { Upload } from "lucide-react"
 
 interface Sound {
   id: number
@@ -15,6 +15,7 @@ interface Sound {
 export default function BentoMusicPlayer() {
   const [sounds, setSounds] = useState<Sound[]>([])
   const [newSoundName, setNewSoundName] = useState("")
+  const [breatheText, setBreatheText] = useState("Rest")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const audioRefs = useRef<{ [key: number]: HTMLAudioElement }>({})
 
@@ -27,7 +28,7 @@ export default function BentoMusicPlayer() {
 
   const addSound = (file: File) => {
     const reader = new FileReader()
-    reader.onload = (e) => {
+    reader.onload = () => {
       const newSound = {
         id: Date.now(),
         name: newSoundName || file.name,
@@ -65,18 +66,47 @@ export default function BentoMusicPlayer() {
     }
   }
 
+  useEffect(() => {
+    const breatheCycle = [
+      { text: "Rest", duration: 6000 }
+    ];
+    let currentIndex = 0;
+
+    const updateBreatheText = () => {
+      setBreatheText(breatheCycle[currentIndex].text);
+      currentIndex = (currentIndex + 1) % breatheCycle.length;
+      setTimeout(updateBreatheText, breatheCycle[currentIndex].duration);
+    };
+
+    updateBreatheText();
+
+    return () => {
+      // Clean up any ongoing timeouts if the component unmounts
+    };
+  }, []);
+
   return (
-    <div className="p-6 bg-gray-100 rounded-xl max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-center">Soothing Music Player</h2>
+    <div className="p-6 bg-zinc-900 rounded-xl max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <span className="text-3xl font-bold text-zinc-100 pulse-text">
+          {breatheText}
+        </span>
+      </div>
+      <h2 className="text-2xl font-bold mb-4 text-center text-zinc-100">Soothing Music Player</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {sounds.map((sound) => (
           <Button
             key={sound.id}
-            className="flex items-center bg-black justify-between mb-2"
+            className={`flex items-center bg-zinc-800 text-zinc-100 justify-between mb-2 hover:bg-zinc-700 transition-colors ${
+              sound.isPlaying ? 'subtle-glow bg-zinc-700' : ''
+            }`}
             onClick={() => togglePlay(sound.id)}
             aria-label={sound.isPlaying ? "Pause" : "Play"}
           >
-            <span className="font-medium text-white truncate">{sound.name}</span>
+            <span className="font-medium truncate">{sound.name}</span>
+            {sound.isPlaying && (
+              <span className="ml-2 w-2 h-2 bg-green-400 rounded-full"></span>
+            )}
             <audio
               ref={el => { if (el) audioRefs.current[sound.id] = el }}
               src={sound.url}
@@ -90,13 +120,14 @@ export default function BentoMusicPlayer() {
           </Button>
         ))}
       </div>
-      <div className="bg-white p-4 rounded-lg shadow-md">
+      <div className="bg-zinc-800 p-4 rounded-lg shadow-md">
         <div className="flex flex-col space-y-2">
           <Input
             type="text"
             placeholder="Sound name (optional)"
             value={newSoundName}
             onChange={(e) => setNewSoundName(e.target.value)}
+            className="bg-zinc-700 text-zinc-100 placeholder-zinc-400 border-zinc-600"
           />
           <input
             type="file"
@@ -106,7 +137,7 @@ export default function BentoMusicPlayer() {
             aria-label="Upload audio file"
             className="hidden"
           />
-          <Button onClick={() => fileInputRef.current?.click()} className="w-full">
+          <Button onClick={() => fileInputRef.current?.click()} className="w-full bg-zinc-700 text-zinc-100 hover:bg-zinc-600 transition-colors">
             <Upload className="mr-2 h-4 w-4" /> Upload Sound
           </Button>
         </div>
