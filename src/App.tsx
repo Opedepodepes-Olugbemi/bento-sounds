@@ -70,10 +70,13 @@ export default function BentoMusicPlayer() {
       <h2 className="text-2xl font-bold mb-4 text-center">Soothing Music Player</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {sounds.map((sound) => (
-              <Button className="flex items-center bg-black justify-between mb-2"
-                onClick={() => togglePlay(sound.id)}
-                aria-label={sound.isPlaying ? "Pause" : "Play"}
-              > <span className="font-medium text-white truncate">{sound.name}</span>
+          <Button
+            key={sound.id}
+            className="flex items-center bg-black justify-between mb-2"
+            onClick={() => togglePlay(sound.id)}
+            aria-label={sound.isPlaying ? "Pause" : "Play"}
+          >
+            <span className="font-medium text-white truncate">{sound.name}</span>
             <audio
               ref={el => { if (el) audioRefs.current[sound.id] = el }}
               src={sound.url}
@@ -84,7 +87,7 @@ export default function BentoMusicPlayer() {
                 ))
               }}
             />
-              </Button>
+          </Button>
         ))}
       </div>
       <div className="bg-white p-4 rounded-lg shadow-md">
@@ -100,6 +103,7 @@ export default function BentoMusicPlayer() {
             accept="audio/*"
             onChange={handleFileUpload}
             ref={fileInputRef}
+            aria-label="Upload audio file"
             className="hidden"
           />
           <Button onClick={() => fileInputRef.current?.click()} className="w-full">
