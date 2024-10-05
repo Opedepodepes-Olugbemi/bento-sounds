@@ -68,7 +68,7 @@ export default function BentoMusicPlayer() {
 
   useEffect(() => {
     const breatheCycle = [
-      { text: "Rest", duration: 6000 }
+      { text: "Rest", duration: 8000 }
     ];
     let currentIndex = 0;
 
